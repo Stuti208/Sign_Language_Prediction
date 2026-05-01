@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>ISL Sign Language Recognition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+
+  <!-- Loading overlay -->
+  <div id="loading-overlay">
+    <div class="loader-box">
+      <div class="loader-orb"></div>
+      <h2>ISL Recognition</h2>
+      <p id="loader-msg">Loading AI models…</p>
+      <div class="loader-progress">
+        <div class="lp-bar" id="lp-bar"></div>
+      </div>
+      <div class="loader-steps">
+        <div class="lstep" id="ls-mp"><span class="lstep-dot"></span>MediaPipe</div>
+        <div class="lstep" id="ls-cam"><span class="lstep-dot"></span>Camera</div>
+        <div class="lstep" id="ls-go"><span class="lstep-dot"></span>Ready</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="hdr">
+      <div class="hdr-left">
+        <div class="logo-mark">ISL</div>
+        <div class="hdr-info">
+          <span class="hdr-title">Sign Language Recognition</span>
+          <span class="hdr-sub">Indian Sign Language · Powered by AI</span>
+        </div>
+      </div>
+      <div class="hdr-right">
+        <div class="badge-pill cyan-pill">✋ {{ static_count }} Static</div>
+        <div class="badge-pill orange-pill">👋 {{ dynamic_count }} Dynamic</div>
+        <div class="live-pill" id="live-pill">
+          <span class="live-dot" id="live-dot"></span>
+          <span id="live-txt">Offline</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main>
+    <div class="grid">
+
+      <!-- Camera column -->
+      <div class="cam-col">
+
+        <!-- Camera card -->
+        <div class="cam-card" id="cam-card">
+          <!-- Off state -->
+          <div class="cam-off" id="cam-off">
+            <div class="cam-off-icon">📷</div>
+            <p>Camera is off</p>
+            <button class="btn-primary" id="btn-start">▶ Start Camera</button>
+          </div>
+
+          <!-- Live feed (hidden until started) -->
+          <video id="webcam" autoplay playsinline muted></video>
+          <canvas id="overlay"></canvas>
+
+          <!-- Overlays (visible only when cam on) -->
+          <div class="cam-overlays" id="cam-overlays">
+            <div class="cam-mode-badge" id="mode-badge">
+              <span id="mb-icon">👁</span>
+              <span id="mb-txt">Detecting…</span>
+            </div>
+            <button class="btn-cam-stop" id="btn-stop">⏹ Stop</button>
+            <div class="cam-bottom">
+              <div class="buf-track"><div class="buf-bar" id="buf-bar"></div></div>
+              <span class="buf-txt" id="buf-txt">Buffer 0 / 30</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tips card -->
+        <div class="card tips-card">
+          <div class="card-title">How to use</div>
+          <div class="tip-row"><span class="tip-ic">✋</span><span>Hold a letter or digit <b>still</b> → static recognition</span></div>
+          <div class="tip-row"><span class="tip-ic">👋</span><span>Move your hand to perform a gesture → dynamic recognition</span></div>
+          <div class="tip-row"><span class="tip-ic">💡</span><span>Good lighting and a plain background improve accuracy</span></div>
+          <div class="tip-row"><span class="tip-ic">📏</span><span>Keep your hand clearly visible in the frame</span></div>
+        </div>
+      </div>
+
+      <!-- Prediction column -->
+      <div class="pred-col">
+
+        <!-- Big result card -->
+        <div class="result-card" id="result-card">
+          <div class="rc-top">
+            <span class="rc-mode-tag" id="rc-mode-tag">WAITING</span>
+            <span class="rc-conf-tag" id="rc-conf-tag">—</span>
+          </div>
+
+          <div class="rc-sign-wrap">
+            <div class="rc-sign" id="rc-sign">—</div>
+            <div class="rc-glow" id="rc-glow"></div>
+          </div>
+
+          <div class="rc-sub" id="rc-sub">Start the camera and show a sign</div>
+
+          <!-- Conf bar -->
+          <div class="rc-conf-row">
+            <span>Confidence</span>
+            <span id="rc-conf-pct">0 %</span>
+          </div>
+          <div class="rc-conf-track">
+            <div class="rc-conf-fill" id="rc-conf-fill"></div>
+          </div>
+
+          <!-- Top-3 -->
+          <div class="rc-alts">
+            <div class="rc-alts-hdr">Alternatives</div>
+            <div id="rc-alts-body">
+              <div class="alt-item"><span>—</span><span>—</span></div>
+              <div class="alt-item"><span>—</span><span>—</span></div>
+              <div class="alt-item"><span>—</span><span>—</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Motion card -->
+        <div class="card">
+          <div class="card-row">
+            <span class="card-title">Motion Level</span>
+            <span class="mono-tag" id="motion-val">0.0000</span>
+          </div>
+          <div class="motion-track">
+            <div class="motion-bar" id="motion-bar"></div>
+            <div class="motion-needle" id="motion-needle"></div>
+          </div>
+          <div class="motion-ends"><span>Still → Static</span><span>Moving → Dynamic</span></div>
+        </div>
+
+        <!-- Sentence builder -->
+        <div class="card">
+          <div class="card-row">
+            <span class="card-title">Sentence Builder</span>
+            <div class="row-btns">
+              <button class="sm-btn" id="btn-speak">🔊 Speak</button>
+              <button class="sm-btn red-btn" id="btn-clr-sent">Clear</button>
+            </div>
+          </div>
+          <div class="sentence-box" id="sentence-box">
+            <span class="placeholder-txt">Recognised words will appear here…</span>
+          </div>
+        </div>
+
+        <!-- History -->
+        <div class="card">
+          <div class="card-row">
+            <span class="card-title">Recent Predictions</span>
+            <button class="sm-btn red-btn" id="btn-clr-hist">Clear</button>
+          </div>
+          <div class="chips-row" id="chips-row">
+            <span class="placeholder-txt">No predictions yet</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>
