@@ -19,10 +19,11 @@ const SEQ_LEN          = 30;
 const POSE_IDX         = [0, 11, 12, 13, 14, 15, 16];
 const MOTION_THRESH    = 0.008;
 const PREDICT_EVERY    = 5;         // run prediction every N frames
-const STATIC_MIN_CONF  = 0.60;
-const DYNAMIC_MIN_CONF = 0.50;
+const STATIC_MIN_CONF  = 0.55;
+const DYNAMIC_MIN_CONF = 0.45;
 const HOLD_MS          = 2500;      // keep result visible after hand leaves
-const VOTE_WIN         = 5;         // majority vote window (static)
+const VOTE_WIN         = 4;         // majority vote window (static)
+const DYNAMIC_VOTE_WIN = 3;         // majority vote window (dynamic)
 const MAX_MOTION_SCALE = 0.05;
 const MAX_HIST         = 25;
 const MAX_SENT         = 80;
@@ -30,7 +31,8 @@ const MAX_SENT         = 80;
 // ── State ──────────────────────────────────────────────────
 let handLM, poseLM;
 let seqBuf    = [];       // ring buffer (147-dim per frame)
-let voteBuf   = [];       // last VOTE_WIN static labels for smoothing
+let staticVoteBuf = [];   // last VOTE_WIN static labels for smoothing
+let dynamicVoteBuf = [];  // last DYNAMIC_VOTE_WIN dynamic labels for smoothing
 let frameIdx  = 0;
 let motion    = 0;
 let lastPredMs = 0;
@@ -135,8 +137,12 @@ async function startCamera() {
     camActive = true;
     setLive(true);
 
-    seqBuf = []; voteBuf = []; frameIdx = 0;
-    dispSign = null; dispMode = null;
+    seqBuf = [];
+    staticVoteBuf = [];
+    dynamicVoteBuf = [];
+    frameIdx = 0;
+    dispSign = null;
+    dispMode = null;
     resetResultCard();
 
     requestAnimationFrame(loop);
@@ -286,18 +292,25 @@ function onResult(res) {
 
   // Static majority vote for smoothing
   if (mode === 'static') {
-    voteBuf.push(label);
-    if (voteBuf.length > VOTE_WIN) voteBuf.shift();
+    dynamicVoteBuf = [];
+    staticVoteBuf.push(label);
+    if (staticVoteBuf.length > VOTE_WIN) staticVoteBuf.shift();
     const freq = {};
     let best = label, bestN = 0;
-    for (const v of voteBuf) { freq[v] = (freq[v]||0)+1; if(freq[v]>bestN){bestN=freq[v];best=v;} }
+    for (const v of staticVoteBuf) { freq[v] = (freq[v]||0)+1; if(freq[v]>bestN){bestN=freq[v];best=v;} }
     if (bestN < Math.ceil(VOTE_WIN / 2)) return;   // not stable enough yet
     if (dispSign === best && dispMode === 'static') return; // no change
     dispSign = best;
   } else {
-    voteBuf = [];
-    if (dispSign === label && dispMode === 'dynamic') return;
-    dispSign = label;
+    staticVoteBuf = [];
+    dynamicVoteBuf.push(label);
+    if (dynamicVoteBuf.length > DYNAMIC_VOTE_WIN) dynamicVoteBuf.shift();
+    const freq = {};
+    let best = label, bestN = 0;
+    for (const v of dynamicVoteBuf) { freq[v] = (freq[v]||0)+1; if(freq[v]>bestN){bestN=freq[v];best=v;} }
+    if (bestN < Math.ceil(DYNAMIC_VOTE_WIN / 2)) return;   // require agreement
+    if (dispSign === best && dispMode === 'dynamic') return;
+    dispSign = best;
   }
 
   dispMode = mode;

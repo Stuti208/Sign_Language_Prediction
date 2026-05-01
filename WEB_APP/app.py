@@ -13,6 +13,29 @@ import numpy as np
 from flask import Flask, render_template, request, jsonify
 import tensorflow as tf
 
+# ✅ Fix for Keras model loading compatibility issues
+from keras.layers import Dense, BatchNormalization
+
+# Patch Dense
+original_dense_init = Dense.__init__
+
+def patched_dense_init(self, *args, **kwargs):
+    kwargs.pop("quantization_config", None)
+    original_dense_init(self, *args, **kwargs)
+
+Dense.__init__ = patched_dense_init
+
+# Patch BatchNormalization
+original_bn_init = BatchNormalization.__init__
+
+def patched_bn_init(self, *args, **kwargs):
+    kwargs.pop("renorm", None)
+    kwargs.pop("renorm_clipping", None)
+    kwargs.pop("renorm_momentum", None)
+    original_bn_init(self, *args, **kwargs)
+
+BatchNormalization.__init__ = patched_bn_init
+
 app = Flask(__name__)
 
 BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
