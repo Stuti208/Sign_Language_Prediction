@@ -38,6 +38,13 @@ POSE_MODEL_URL  = "https://storage.googleapis.com/mediapipe-models/pose_landmark
 SEQUENCE_LENGTH = 30
 POSE_INDICES    = [0, 11, 12, 13, 14, 15, 16]   # 7 pose keypoints
 
+# Sample every FRAME_STEP-th frame from each video.
+# Training videos are 30 fps.  The web app captures ~1 keypoint every 80-100 ms
+# (PREDICT_EVERY=5 at 60 fps + Flask response time), which is roughly 10-12 fps.
+# FRAME_STEP=2 → 15 fps effective → 30 keypoints span ~2 seconds — much closer
+# to the web-app's actual capture rate than the original 1-second window.
+FRAME_STEP = 2
+
 # ─────────────────────────── Download models ─────────────────
 def _download_if_needed(url, path):
     if not os.path.exists(path):
@@ -109,6 +116,7 @@ def process_video_dataset():
         for seq_idx, video_file in enumerate(video_files):
             cap            = cv2.VideoCapture(str(video_file))
             frame_sequence = []
+            raw_frame_idx  = 0
 
             if not cap.isOpened():
                 total_failed += 1
@@ -118,6 +126,12 @@ def process_video_dataset():
                 ret, frame = cap.read()
                 if not ret or frame is None:
                     break
+
+                raw_frame_idx += 1
+                # Skip frames so the sequence spans ~2 s instead of ~1 s,
+                # matching the web app's actual keypoint capture rate.
+                if raw_frame_idx % FRAME_STEP != 0:
+                    continue
 
                 rgb      = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)

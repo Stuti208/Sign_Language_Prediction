@@ -2,3 +2,27 @@
 DYNAMIC/dataset2/
 STATIC/isl_dataset/
 
+# ── Processed training data (re-generable) ────────────────
+DYNAMIC/DATA/
+
+# ── MediaPipe model files (auto-downloaded at startup) ────
+*.task
+
+# ── Cached landmark arrays ────────────────────────────────
+STATIC/MODELS/landmarks_cache.npz
+
+# ── Python cache ──────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+
+# ── Debug / scratch files ─────────────────────────────────
+debug_*.jpg
+debug_*.png
+snap_*.jpg
+
+# ── Common IDE and OS files ───────────────────────────────
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db

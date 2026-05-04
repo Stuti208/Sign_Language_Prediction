@@ -1,6 +1,6 @@
-Classes           : 31
-Best val accuracy : 99.37%  (epoch 106)
-Training time     : 18.0 min
+Classes           : 34
+Best val accuracy : 100.00%  (epoch 61)
+Training time     : 14.4 min
 
                 precision    recall  f1-score   support
 
@@ -8,34 +8,37 @@ Training time     : 18.0 min
          Break       1.00      1.00      1.00        36
        Brinjal       1.00      1.00      1.00        36
         Budget       1.00      1.00      1.00        36
-          Busy       1.00      0.94      0.97        36
+          Busy       1.00      1.00      1.00        36
        Cabbage       1.00      1.00      1.00        36
         Carrot       1.00      1.00      1.00        36
    Cauliflower       1.00      1.00      1.00        36
-        Chilli       0.97      1.00      0.99        36
+        Chilli       1.00      1.00      1.00        36
          Clean       1.00      1.00      1.00        36
          Close       1.00      1.00      1.00        36
           Come       1.00      1.00      1.00        36
           Cook       1.00      1.00      1.00        36
      Crocodile       1.00      1.00      1.00        36
-           Cry       0.95      1.00      0.97        36
-      Cucumber       1.00      0.97      0.99        36
+           Cry       1.00      1.00      1.00        36
+      Cucumber       1.00      1.00      1.00        36
           Deer       1.00      1.00      1.00        36
          Drink       1.00      1.00      1.00        36
       Elephant       1.00      1.00      1.00        36
           Exam       1.00      1.00      1.00        36
          Fedup       1.00      1.00      1.00        36
-         Fever       0.95      1.00      0.97        36
-       Giraffe       1.00      0.97      0.99        36
-          Give       1.00      0.97      0.99        36
-  Good Morning       0.97      1.00      0.99        36
-Good afternoon       1.00      0.97      0.99        36
+         Fever       1.00      1.00      1.00        36
+       Giraffe       1.00      1.00      1.00        36
+          Give       1.00      1.00      1.00        36
+  Good Morning       1.00      1.00      1.00        36
+Good afternoon       1.00      1.00      1.00        36
          Hello       1.00      1.00      1.00        36
-           Hug       1.00      0.97      0.99        36
+           Hug       1.00      1.00      1.00        36
         Injury       1.00      1.00      1.00        36
-     Interview       0.97      1.00      0.99        36
-          Jump       1.00      1.00      1.00        24
+     Interview       1.00      1.00      1.00        36
+          Jump       1.00      1.00      1.00        36
+     Karnataka       1.00      1.00      1.00        36
+           Key       1.00      1.00      1.00        36
+         Knife       1.00      1.00      1.00        29
 
-      accuracy                           0.99      1104
-     macro avg       0.99      0.99      0.99      1104
-  weighted avg       0.99      0.99      0.99      1104
+      accuracy                           1.00      1217
+     macro avg       1.00      1.00      1.00      1217
+  weighted avg       1.00      1.00      1.00      1217
