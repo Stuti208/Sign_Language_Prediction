@@ -119,3 +119,5 @@ Open `http://localhost:5000` in your browser.
 
 **Stuti Jain**
 [LinkedIn](https://www.linkedin.com/in/stuti-jain-754b20244/) · [GitHub](https://github.com/Stuti208)
+[LinkedIn](https://www.linkedin.com/in/srishtiagl/)) · [GitHub](https://github.com/srishti-cmd)
+
